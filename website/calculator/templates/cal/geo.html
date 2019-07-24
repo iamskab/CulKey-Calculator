@@ -1,0 +1,133 @@
+{% extends 'cal/base.html' %}
+
+{% block title %}
+CulKey Kaala Calculator - Beta
+{% endblock %}
+
+{% block content %}
+<div align="center">
+     <br>
+        <form class="my-ajax-form" method="POST"  data-url='{{ request.build_absolute_uri|safe }}'>
+          {% csrf_token %}
+          <table>
+              {{ form }}
+          </table>
+              <input type="hidden" name="ajax_check" value="True">
+              <br>
+          <button type="submit" class="save btn btn-primary" style="margin-left:150px;"> DISPLAY LOCATION DETAILS </button>
+        </form>
+        <br>
+     <div>
+         <span id="sunrise"></span>
+     </div>
+     <div>
+         <span id="sunset"></span>
+     </div>
+     <div>
+         <span id="moonrise"></span>
+     </div>
+     <div>
+         <span id="moonset"></span>
+     </div>
+     <br>
+     <div>
+         <span id="state"></span>
+     </div>
+     <div>
+         <span id="country"></span>
+     </div>
+     <br>
+     <div>
+         <span id="latitude"></span>
+     </div>
+     <div>
+         <span id="longitude"></span>
+     </div>
+     <div>
+         <span id="timezone"></span>
+     </div>
+    <br>
+    <div>
+         <span id="date"></span>
+    </div>
+    <br>
+    <div>
+         <span id="raahu_s"></span>
+     </div>
+     <div>
+         <span id="raahu_e"></span>
+     </div>
+    <div>
+         <span id="gulika_s"></span>
+     </div>
+     <div>
+         <span id="gulika_e"></span>
+     </div>
+    <div>
+         <span id="yama_s"></span>
+     </div>
+     <div>
+         <span id="yama_e"></span>
+     </div>
+</div>
+
+{% endblock %}
+{% block script %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script>
+    $(document).ready(function(){
+        var $myForm = $('.my-ajax-form')
+        $myForm.submit(function(event){
+            event.preventDefault()
+            var $formData = $(this).serialize()
+            console.log($formData)
+            var $thisURL = $myForm.attr('data-url')
+
+            $.ajax({
+                method: "POST",
+                url: $thisURL,
+                data: $formData,
+                success: handleFormSuccess,
+                error: handleFormError,
+            })
+        })
+
+         function handleFormSuccess(data, textStatus, jqXHR){
+            console.log(data)
+            console.log(textStatus)
+            console.log(jqXHR)
+            if(data == "No City Found")
+            {
+             $("#sunrise").html(data)
+            }
+            else
+            {
+             var Data = JSON.parse(data)
+             $("#sunrise").html("Sunrise: "+Data.sunrise)
+             $("#sunset").html("Sunset: "+Data.sunset)
+             $("#moonrise").html("Moonrise: "+Data.moonrise)
+             $("#moonset").html("Moonset: "+Data.moonset)
+             $("#state").html("State: "+Data.state)
+             $("#country").html("Country: "+Data.country)
+             $("#latitude").html("Latitude: "+Data.latitude)
+             $("#longitude").html("Longitude: "+Data.longitude)
+             $("#timezone").html("Timezone: GMT+"+Data.timezone)
+             $("#date").html("Kaala: "+Data.date)
+             $("#gulika_s").html("Gulika Kaala starts at: "+Data.gulika_kaala_s)
+             $("#gulika_e").html("Gulika Kaala ends at: "+Data.gulika_kaala_e)
+             $("#raahu_s").html("Rahu Kaala starts at: "+Data.raahu_kaala_s)
+             $("#raahu_e").html("Rahu Kaala ends at: "+Data.raahu_kaala_e)
+             $("#yama_s").html("Yama Ghanta starts at: "+Data.yama_kaala_s)
+             $("#yama_e").html("Yama Ghanta ends at: "+Data.yama_kaala_e)
+            }
+
+        }
+        function handleFormError(jqXHR, textStatus, errorThrown){
+            console.log(jqXHR)
+            console.log(textStatus)
+            console.log(errorThrown)
+        }
+    })
+</script>
+{% endblock %}
